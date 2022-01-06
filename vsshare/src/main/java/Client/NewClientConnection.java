@@ -17,6 +17,7 @@ public class NewClientConnection {
         String ipAddresse;
         String password;
         PrintWriter pout ;
+        String messageToSend="";
 
         Scanner sc;
 
@@ -36,7 +37,6 @@ public class NewClientConnection {
             while (!stop) {
                 //read received messgae
                 String message = buffin.readLine();
-                System.out.println("received message : " + message);
 
                 if (message.equals("quit"))
                 {
@@ -44,10 +44,14 @@ public class NewClientConnection {
                     break;
                 }
 
-                //wait for an input from the console
-                sc = new Scanner(System.in);
-                System.out.println("Your message :");
-                String messageToSend = sc.nextLine();
+                if(message.equals("input")){
+                    //wait for an input from the console
+                    sc = new Scanner(System.in);
+                    System.out.println("Your message :");
+                    messageToSend = sc.nextLine();
+                    Pout.println(messageToSend);
+                    Pout.flush();
+                }
 
                 //write the message on the output stream
                 if (messageToSend.equals("quit"))
@@ -58,8 +62,8 @@ public class NewClientConnection {
                     break;
                 }
 
-                Pout.println(messageToSend);
-                Pout.flush();
+                System.out.println(message);
+
 
             }
 

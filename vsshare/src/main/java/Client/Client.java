@@ -19,19 +19,19 @@ public class Client {
     }
 
     public void transferFile(File source, File dest) throws IOException {
-        InputStream is = null;
-        OutputStream os = null;
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
         try {
-            is = new FileInputStream(source);
-            os = new FileOutputStream(dest);
+            fis = new FileInputStream(source);
+            fos = new FileOutputStream(dest);
             byte[] buffer = new byte[1024];
             int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
+            while ((length = fis.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
             }
         } finally {
-            is.close();
-            os.close();
+            fis.close();
+            fos.close();
         }
     }
 

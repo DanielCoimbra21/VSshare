@@ -77,8 +77,13 @@ public class AcceptClient implements Runnable {
                 String premierContact = "Bonjour, veuillez insérer votre Username" ;
                 pout.println(premierContact);
                 pout.flush();
+
                 // récupère le nom de compte du client
                 String username = getInput();
+
+                //create dir with ipAddre
+                createShareDirectory(new File("C:\\ShareFiles\\" + username));
+
                 // demande le mot de passe du client
                 String demandeMdp = "Mot de passe" ;
                 pout.println(demandeMdp);
@@ -143,7 +148,7 @@ public class AcceptClient implements Runnable {
                     case "1":
                         pout.println("The files available on the server are : ");
                         pout.flush();
-                        listFiles(shareDirectory);
+                        listFiles(shareDirectory, 2);
                         break;
 
                     //2. delete file wanted
@@ -153,8 +158,10 @@ public class AcceptClient implements Runnable {
                         String fileToDel = getInput();
                         pout.println("what is the password ?");
                         pout.flush();
+
                         //if (test password)
                         String passwordFile = getInput();
+
                         deleteFile(shareDirectory, fileToDel);
                         break;
 
@@ -162,9 +169,9 @@ public class AcceptClient implements Runnable {
                     case "3":
                         pout.println("which file do you want to upload");
                         pout.flush();
-                        String sourceFile = getInput();
-                        File fileToSend = new File(sourceFile);
-                        //transferFile(fileToSend ,shareDirectory);
+
+                        transferFile(shareDirectory);
+
                         break;
 
                     //4. oui
@@ -233,16 +240,19 @@ public class AcceptClient implements Runnable {
         return affiche;
     }
 
- /*   public void transferFile(File source, File dest) throws IOException {
-        BufferedReader Buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream()));
-        PrintWriter Pout = new PrintWriter(clientSocketOnServer.getOutputStream(), true);
+    public void transferFile(File dest) throws IOException
+    {
+        /*//Ask the server to create a new socket
+        clientSocketOnServer = new Socket(serverAddress,45007);
+        BufferedReader Buffin = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        PrintWriter Pout = new PrintWriter(clientSocket.getOutputStream(), true);
 
 
         int totalsize = Integer.parseInt(Buffin.readLine());
         String filename = Buffin.readLine();
         byte[] mybytearray = new byte[totalsize];
 
-        InputStream is = new BufferedInputStream(clientSocketOnServer.getInputStream());
+        InputStream is = new BufferedInputStream(clientSocket.getInputStream());
 
 
         System.out.println("You received a file in :");
@@ -259,17 +269,8 @@ public class AcceptClient implements Runnable {
 
         }
 
-        bos.close();
-
-
-    }catch(UnknownHostException e) {
-
-        e.printStackTrace();
-
-    }catch (IOException e) {
-
-        e.printStackTrace();
-    }*/
+        bos.close();*/
+    }
 
 
 
@@ -288,17 +289,48 @@ public class AcceptClient implements Runnable {
         }
     }
 
-    public void listFiles(File f)
+    public void listFiles(File f, int nbDir)
     {
 
         File[] files = f.listFiles();
 
         // For each pathname in the pathnames array
         for (File file : files) {
-            // Print the names of files and directories
-            String fileName = file.getName();
-            pout.println(fileName);
+
+
+            String retourLigne = "\n";
+            pout.print(retourLigne);
             pout.flush();
+
+
+            //tabulation
+            for (int i = 0; i < nbDir-2; i++) {
+                String fileName = "\t" ;
+                pout.print(fileName);
+                pout.flush();
+            }
+
+            //if it's a file it shows the file
+            if(file.isFile())
+            {
+                String fileName = file.getName() ;
+                pout.println(fileName);
+                pout.flush();
+            }
+            //if its directory, it shows the directory name, and then recursive with the next level
+            else if(file.isDirectory())
+            {
+                String dirName = "["+file.getName()+"]";
+                pout.print(dirName);
+                pout.flush();
+
+                listFiles( file ,nbDir+1);
+            }
+
+            // Print the names of files and directories
+            /*String fileName = file.getName();
+            pout.println(fileName);
+            pout.flush();*/
         }
     }
 

@@ -13,6 +13,8 @@ uwu
 2 = delete a file uwu
 3 = add a file uwu
 4 = oui uwu
+5 = help page uwu
+quit = quit the application uwu
 uwu
 *********************************** uwu
 uwu

@@ -1,5 +1,6 @@
 package Client;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -13,9 +14,6 @@ public class NewClientConnection {
 
         InetAddress serverAddress;
         String serverName = "127.0.0.1";
-        String ipAddresse;
-        String password;
-        PrintWriter pout ;
         String messageToSend="";
         Socket mySocket;
 
@@ -28,6 +26,9 @@ public class NewClientConnection {
             Scanner scanner = new Scanner(System.in);
 
             mySocket = new Socket(serverAddress,45007);
+            Gui gui = new Gui();
+            gui.setVisible(true);
+            gui.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
             BufferedReader buffin = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             PrintWriter Pout = new PrintWriter(mySocket.getOutputStream());
@@ -36,6 +37,7 @@ public class NewClientConnection {
 
             while (!stop) {
                 //read received messgae
+
                 String message = buffin.readLine();
 
                 if (message.equals("quit"))
@@ -47,7 +49,6 @@ public class NewClientConnection {
                 if(message.equals("input")){
                     //wait for an input from the console
                     sc = new Scanner(System.in);
-                    System.out.println("Your choice :");
 
                     messageToSend = sc.nextLine();
                     Pout.println(messageToSend);

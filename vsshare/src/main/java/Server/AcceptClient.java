@@ -72,7 +72,7 @@ public class AcceptClient implements Runnable {
             // va regarder si l'adresse ip existe déjà
             String ipAddr = clientSocketOnServer.getInetAddress().toString() ;
             if(!items.contains(ipAddr)){
-                System.out.println("la liste n'a pas trouvé l'adresse ip");
+                System.out.println("Ip address not found in <TheList.txt>.");
                 // On va donc envoyer un message au client pour lui demander son nom de compte
                 String premierContact = "Bonjour, veuillez insérer votre Username" ;
                 pout.println(premierContact);
@@ -96,10 +96,10 @@ public class AcceptClient implements Runnable {
                 writer.close();
             }
             else {
-                System.out.println("adresse ip trouvée dans le fichier");
+                System.out.println("Ip address found in <TheList.txt>.");
                 // On va donc envoyer un message au client
                 do {
-                    String deuxiemeContact = "REBONJOUR C EST QUOI TON CODE STP STP STP ?????";
+                    String deuxiemeContact = "Password :";
                     pout.println(deuxiemeContact);
                     pout.flush();
                     // récupère le code du client
@@ -117,7 +117,7 @@ public class AcceptClient implements Runnable {
                             }
                             else{
                                 // mot de passe incorrect
-                                String incorrectPassword = "TON MDP EST FAUX, T ES MAUVAIS JACK";
+                                String incorrectPassword = "Wrong password.";
                                 pout.println(incorrectPassword);
                                 pout.flush();
                             }
@@ -131,15 +131,10 @@ public class AcceptClient implements Runnable {
             pout.flush();
 
 
-
+            // écoute le client afin de savoir l'action à faire
             do {
-
-                // envoie le message de bienvenue
                 pout.println("\nContinue choices : ");
                 pout.flush();
-
-
-                // écoute le client afin de savoir l'action à faire
                 String choice = getInput();
 
                 switch (choice)
@@ -165,7 +160,6 @@ public class AcceptClient implements Runnable {
 
                     //3. add a file
                     case "3":
-
                         pout.println("which file do you want to upload");
                         pout.flush();
                         String sourceFile = getInput();
@@ -188,7 +182,6 @@ public class AcceptClient implements Runnable {
                     case "quit":
                         quitting = true;
                         break;
-
                 }
             }while (quitting == false);
 

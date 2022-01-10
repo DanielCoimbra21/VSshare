@@ -1,12 +1,11 @@
 package Client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class NewClientConnection {
@@ -18,6 +17,7 @@ public class NewClientConnection {
         String password;
         PrintWriter pout ;
         String messageToSend="";
+        Socket mySocket;
 
         Scanner sc;
 
@@ -27,7 +27,7 @@ public class NewClientConnection {
 
             Scanner scanner = new Scanner(System.in);
 
-            Socket mySocket = new Socket(serverAddress,45007);
+            mySocket = new Socket(serverAddress,45007);
 
             BufferedReader buffin = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             PrintWriter Pout = new PrintWriter(mySocket.getOutputStream());
@@ -47,11 +47,21 @@ public class NewClientConnection {
                 if(message.equals("input")){
                     //wait for an input from the console
                     sc = new Scanner(System.in);
-                    System.out.println("Your message :");
+                    System.out.println("Your choice :");
+
                     messageToSend = sc.nextLine();
                     Pout.println(messageToSend);
                     Pout.flush();
+
                 }
+
+                /*if (messageToSend.equals("3"))
+                {
+                    File file = new File("C:\\toSend\\send.txt");
+                    transferFile(file);
+                }*/
+
+
 
                 //write the message on the output stream
                 if (messageToSend.equals("quit"))
@@ -59,7 +69,9 @@ public class NewClientConnection {
                     stop = true;
                     Pout.println(messageToSend);
                     Pout.flush();
-                    break;
+                    //break;
+                    System.out.println("\nTerminate client program...");
+                    mySocket.close();
                 }
 
                 System.out.println(message);
@@ -73,7 +85,7 @@ public class NewClientConnection {
             System.out.println("We got the connexion to  "+ serverAddress);
 
             //wait a bit before exit
-            Thread.sleep(30000);
+            //Thread.sleep(30000);
 
             System.out.println("\nTerminate client program...");
             mySocket.close();
@@ -87,9 +99,28 @@ public class NewClientConnection {
         }catch(NullPointerException e){
             System.out.println("Connection interrupted with the server");
         }
-        catch (InterruptedException e) {
-            System.out.println("interrupted exception");
-        }
     }
+
+    /*private static void transferFile(File file) {
+
+        String filename = "file.pdf";
+        String pathname = file.getName();
+        File myFile = new File(pathname);
+        long myFileSize = Files.size(Paths.get(pathname));
+
+        PrintWriter Pout2 = new PrintWriter(.getOutputStream(), true);
+        Pout2.println(myFileSize);
+        Pout2.println(filename);
+
+        byte[] mybytearray = new byte[(int)myFileSize];
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
+        bis.read(mybytearray, 0, mybytearray.length);
+        OutputStream os = clientSocketOnServer.getOutputStream();
+        os.write(mybytearray, 0, mybytearray.length);
+        os.flush();
+        clientSocketOnServer.close();
+        System.out.println("end of connection to the client " + clientNumber);
+    }*/
+
 
 }

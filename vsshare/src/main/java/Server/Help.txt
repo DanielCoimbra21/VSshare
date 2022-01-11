@@ -11,10 +11,9 @@ Here is a list of all the functions that you can type : uwu
 uwu
 1 = list all the files uwu
 2 = delete a file uwu
-3 = add a file uwu
-4 = oui uwu
+3 = download a file uwu
+4 = upload uwu
 5 = help page uwu
 quit = quit the application uwu
 uwu
-*********************************** uwu
-uwu
+***********************************

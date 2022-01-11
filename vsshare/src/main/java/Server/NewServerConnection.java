@@ -24,12 +24,15 @@ public class NewServerConnection {
             Socket srvSocket = null ;
             InetAddress localAddress = null;
             ServerSocket mySkServer;
-            String interfaceName = "lo";
+            Connection connection = new Connection();
+            //String interfaceName = connection.getIa();
+            Log log = new Log();
 
             int ClientNo = 1;
 
             try {
-                NetworkInterface ni = NetworkInterface.getByName(interfaceName);
+                //NetworkInterface ni = NetworkInterface.getByName(interfaceName);
+                NetworkInterface ni = NetworkInterface.getByInetAddress(connection.getIa());
                 Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
                 while(inetAddresses.hasMoreElements()) {
                     InetAddress ia = inetAddresses.nextElement();
@@ -48,6 +51,8 @@ public class NewServerConnection {
                 System.out.println("Used IpAddress :" + mySkServer.getInetAddress());
                 System.out.println("Listening to Port :" + mySkServer.getLocalPort());
 
+                log.info("Server is online");
+
                 //wait for a client connection
                 while(true)
                 {
@@ -60,6 +65,8 @@ public class NewServerConnection {
                 }
 
             } catch (IOException e) {
+
+               // log.SEVERE("Exception " +e);
                 e.printStackTrace();
             }
         }

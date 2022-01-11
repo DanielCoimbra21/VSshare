@@ -1,6 +1,8 @@
 package Server;
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class AcceptClient implements Runnable {
@@ -26,9 +28,7 @@ public class AcceptClient implements Runnable {
     {
         this.clientSocketOnServer = clientSocketOnServer;
         this.clientNumber = clientNo;
-
     }
-
 
 
     //overwrite the thread run()
@@ -41,7 +41,7 @@ public class AcceptClient implements Runnable {
 
             System.out.println("Client Nr "+clientNumber+ " is connected");
             System.out.println("Socket is available for connection"+ clientSocketOnServer);
-            pout = new PrintWriter(clientSocketOnServer.getOutputStream());
+            pout = new PrintWriter(clientSocketOnServer.getOutputStream(), true);
 
             // va lire le fichier
             Scanner s = new Scanner(new File("vsshare/src/main/java/RegisteredClients/TheList.txt"));
@@ -88,6 +88,7 @@ public class AcceptClient implements Runnable {
                 String demandeMdp = "Mot de passe" ;
                 pout.println(demandeMdp);
                 pout.flush();
+
                 // récupère le code du client
                 String password = getInput();
                 // crée une arraylist avec le nouveau client
@@ -107,6 +108,7 @@ public class AcceptClient implements Runnable {
                     String deuxiemeContact = "Password :";
                     pout.println(deuxiemeContact);
                     pout.flush();
+
                     // récupère le code du client
                     String message_distant = getInput();
                     // va chercher le code correspondant à l'adresse ip
@@ -135,64 +137,8 @@ public class AcceptClient implements Runnable {
             pout.println(help());
             pout.flush();
 
-
-            // écoute le client afin de savoir l'action à faire
-            do {
-                pout.println("\nContinue choices : ");
-                pout.flush();
-                String choice = getInput();
-
-                switch (choice)
-                {
-                    // 1. Send a list of all the files
-                    case "1":
-                        pout.println("The files available on the server are : ");
-                        pout.flush();
-                        listFiles(shareDirectory, 2);
-                        break;
-
-                    //2. delete file wanted
-                    case "2":
-                        pout.println("which file do you want to delete");
-                        pout.flush();
-                        String fileToDel = getInput();
-                        pout.println("what is the password ?");
-                        pout.flush();
-
-                        //if (test password)
-                        String passwordFile = getInput();
-
-                        deleteFile(shareDirectory, fileToDel);
-                        break;
-
-                    //3. add a file
-                    case "3":
-                        pout.println("which file do you want to upload");
-                        pout.flush();
-
-                        transferFile(shareDirectory);
-
-                        break;
-
-                    //4. oui
-                    case "4":
-                        break;
-
-                    //5. help
-                    case "5":
-                        // envoie le message de bienvenue
-                        pout.println(help());
-                        pout.flush();
-                        break;
-
-                    //3. oui
-                    case "quit":
-                        quitting = true;
-                        break;
-                }
-            }while (quitting == false);
-
-
+            //call switch with the choices
+            switchMethod();
 
             // ferme le serveur
             //clientSocketOnServer.close();
@@ -205,11 +151,97 @@ public class AcceptClient implements Runnable {
         }
     }
 
+    private void switchMethod() {
+
+        try
+        {
+            // écoute le client afin de savoir l'action à faire
+            do {
+                pout.println("\nContinue choices : ");
+                pout.flush();
+
+                String choice = getInput();
+
+                switch (choice)
+                {
+                    // 1. Send a list of all the files
+                    case "1":
+                        pout.println("The files available on the server are : ");
+                        pout.flush();
+
+                        listFiles(shareDirectory, 2);
+                        break;
+
+                    //2. delete file wanted
+                    case "2":
+                        pout.println("which file do you want to delete");
+                        pout.flush();
+
+                        String fileToDel = getInput();
+
+                        pout.println("what is the password ?");
+                        pout.flush();
+
+
+                        //if (test password)
+                        String passwordFile = getInput();
+
+                        deleteFile(shareDirectory, fileToDel);
+                        break;
+
+                    //3. add a file
+                    case "3":
+                        pout.println("which file do you want to download");
+                        pout.flush();
+
+                        String fileToSend = getInput();
+
+                        pout.println("File "+ fileToSend + " was sent");
+                        pout.flush();
+
+                        File file = new File(fileToSend);
+
+                        transferFile(file);
+
+                        break;
+
+                    //4. upload
+                    case "4":
+                        pout.println("which file do you want to upload");
+                        pout.flush();
+
+                        uploadFile();
+
+
+                        break;
+
+                    //5. help
+                    case "5":
+                        // envoie le message de bienvenue
+                        pout.println(help());
+                        pout.flush();
+
+                        break;
+
+                    //3. oui
+                    case "quit":
+                        quitting = true;
+                        break;
+                }
+            }while (quitting == false);
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
     public String getInput() throws IOException {
         pout = new PrintWriter(clientSocketOnServer.getOutputStream());
         String initiate = "input";
         pout.println(initiate);
         pout.flush();
+
 
         buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream())) ;
         String message_distant = buffin.readLine() ;
@@ -242,37 +274,26 @@ public class AcceptClient implements Runnable {
 
     public void transferFile(File dest) throws IOException
     {
-        /*//Ask the server to create a new socket
-        clientSocketOnServer = new Socket(serverAddress,45007);
-        BufferedReader Buffin = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        PrintWriter Pout = new PrintWriter(clientSocket.getOutputStream(), true);
+        //Ask the server to create a new socket
+        String filename = dest.getName();
+        String pathname = shareDirectory+"\\"+dest.getName();
+        File myFile = new File(pathname);
+        long myFileSize = Files.size(Paths.get(pathname));
+
+        PrintWriter Pout2 = new PrintWriter(clientSocketOnServer.getOutputStream(), true);
+        Pout2.println(myFileSize);
+        Pout2.println(filename);
 
 
-        int totalsize = Integer.parseInt(Buffin.readLine());
-        String filename = Buffin.readLine();
-        byte[] mybytearray = new byte[totalsize];
-
-        InputStream is = new BufferedInputStream(clientSocket.getInputStream());
-
-
-        System.out.println("You received a file in :");
-
-        FileOutputStream fos = new FileOutputStream("c://received//"+filename);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        int byteReadTot = 0;
-        while(byteReadTot<totalsize)
-        {
-            int byteRead = is.read(mybytearray, 0, mybytearray.length);
-            byteReadTot += byteRead;
-            System.out.println("Byte read : " + byteReadTot);
-            bos.write(mybytearray, 0, byteRead);
-
-        }
-
-        bos.close();*/
+        byte[] mybytearray = new byte[(int)myFileSize];
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
+        bis.read(mybytearray, 0, mybytearray.length);
+        OutputStream os = clientSocketOnServer.getOutputStream();
+        os.write(mybytearray, 0, mybytearray.length);
+        os.flush();
+        /*clientSocketOnServer.close();
+        System.out.println("end of connection to the client " + clientNumber);*/
     }
-
-
 
     public void deleteFile(File file, String fileToDel)
     {
@@ -346,6 +367,54 @@ public class AcceptClient implements Runnable {
             System.out.println("Directory exists already");
         }
     }
+
+    public void uploadFile()
+    {
+        try {
+            BufferedReader Buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream()));
+
+            //Ask the server to create a new socket
+
+
+
+            String size = Buffin.readLine();
+            System.out.println(size);
+
+            String filePath = Buffin.readLine();
+            System.out.println(filePath);
+            //System.out.println(Buffin.readLine());
+
+            File file = new File(filePath);
+
+            int totalsize = Integer.parseInt(size);
+
+            String filename = file.getName();
+            byte[] mybytearray = new byte[totalsize];
+
+            InputStream is = new BufferedInputStream(clientSocketOnServer.getInputStream());
+
+            System.out.println("You received a file in :");
+
+            FileOutputStream fos = new FileOutputStream(shareDirectory+"\\"+mdp[idUsername]+"\\"+filename);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            int byteReadTot = 0;
+            while(byteReadTot<totalsize)
+            {
+                int byteRead = is.read(mybytearray, 0, mybytearray.length);
+                byteReadTot += byteRead;
+                System.out.println("Byte read : " + byteReadTot);
+                bos.write(mybytearray, 0, byteRead);
+
+            }
+
+            bos.close();
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
 
 
 

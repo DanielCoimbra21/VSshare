@@ -19,9 +19,8 @@ public class AcceptClient implements Runnable {
     private int idPassword;
     private int idUsername;
     private boolean quitting = false;
-
-
     File shareDirectory = new File("C:\\ShareFiles");
+
 
     //Constructor
     public AcceptClient (Socket clientSocketOnServer, int clientNo)
@@ -34,11 +33,8 @@ public class AcceptClient implements Runnable {
     //overwrite the thread run()
     public void run() {
         try {
-
-            //
+            // parameter part
             createShareDirectory(shareDirectory);
-
-
             System.out.println("Client Nr "+clientNumber+ " is connected");
             System.out.println("Socket is available for connection"+ clientSocketOnServer);
             pout = new PrintWriter(clientSocketOnServer.getOutputStream(), true);
@@ -51,7 +47,6 @@ public class AcceptClient implements Runnable {
 
             }
             s.close();
-
 
             // va stocker toutes les addresses ip en position 0 et tous les mot de passes en position 1 d'un tableau de string
             List<String> items = null;
@@ -66,14 +61,12 @@ public class AcceptClient implements Runnable {
                 mdp[cmpt] = items.get(2);
                 cmpt++;
             }
-
             System.out.println(items.toString());
 
-            // va regarder si l'adresse ip existe déjà
+            // Si l'addresse IP n'existe pas, crée un compte. Sinon se connecte au compte
             String ipAddr = clientSocketOnServer.getInetAddress().toString() ;
             if(!items.contains(ipAddr)){
-                System.out.println("Ip address not found in <TheList.txt>.");
-                // On va donc envoyer un message au client pour lui demander son nom de compte
+                // Demander le nom de compte au client
                 String premierContact = "Bonjour, veuillez insérer votre Username" ;
                 pout.println(premierContact);
                 pout.flush();
@@ -81,7 +74,7 @@ public class AcceptClient implements Runnable {
                 // récupère le nom de compte du client
                 String username = getInput();
 
-                //create dir with ipAddre
+                // Crée un directory avec le username
                 createShareDirectory(new File("C:\\ShareFiles\\" + username));
 
                 // demande le mot de passe du client
@@ -93,6 +86,7 @@ public class AcceptClient implements Runnable {
                 String password = getInput();
                 // crée une arraylist avec le nouveau client
                 String stockage = ipAddr + ":" + username + ":" + password;
+
                 // ajoute cette arraylist au fichier
                 list.add(stockage);
                 FileWriter writer = new FileWriter("vsshare/src/main/java/RegisteredClients/TheList.txt");
@@ -132,12 +126,16 @@ public class AcceptClient implements Runnable {
                             }
                             else{
                                 // mot de passe incorrect
-                                String incorrectPassword = "Wrong password.";
+                                String incorrectPassword = "Wrong username or password.";
                                 pout.println(incorrectPassword);
                                 pout.flush();
                             }
                         }
                     }
+                    // Username incorrect
+                    String incorrectPassword = "Wrong username or password.";
+                    pout.println(incorrectPassword);
+                    pout.flush();
                 }while (codeClient==false);
             }
 
@@ -160,7 +158,6 @@ public class AcceptClient implements Runnable {
     }
 
     private void switchMethod() {
-
         try
         {
             // écoute le client afin de savoir l'action à faire
@@ -182,55 +179,66 @@ public class AcceptClient implements Runnable {
 
                     //2. delete file wanted
                     case "2":
+                        // 1. demande le username
                         pout.println("Enter an Username :");
                         pout.flush();
                         String usernameToDel = getInput();
 
-                        // liste les files du username en question
+                        // 2. liste tous les fichiers liés a cet username
+                        pout.println("Here is a list for the selected username : ");
+                        pout.flush();
+                        listFilesForUsername(shareDirectory, usernameToDel);
 
+                        // 3. Récupérer le nom du fichié devant être deleted
+                        pout.println("Please enter the name of the file you want to delete.");
+                        pout.flush();
+                        String nameOfWantedDeletedFile = getInput();
 
-
-                        // test le password
-//                        boolean pwd = false ;
-//                        do {
-//                            pout.println("Password : ");
-//                            pout.flush();
-//                            String passwordFile = getInput();
-//
-//                            if(passwordFile.equals(mdp[idFilePassword])){
-//                                pwd = true ;
-//                            }
-//                            else {
-//                                pout.println("Wrong password.");
-//                                pout.flush();
-//                            }
-//                        }while(pwd = false);
-//                        deleteFile(shareDirectory, fileToDel);
+                        // 4. Test le password du username précédemment rentré
+                        boolean pwd = false ;
+                        do {
+                            pout.println("Password : ");
+                            pout.flush();
+                            String passwordFile = getInput();
+                            for(int i = 0 ; i < mdp.length ; i++){
+                                if(mdp[i].equals(usernameToDel)){
+                                    if(mdp[i+1].equals(passwordFile)){
+                                        // mot de passe correct
+                                        idIPAddr = i-1 ;
+                                        idUsername = i;
+                                        idPassword = i+1;
+                                        pwd = true ;
+                                        break;
+                                    }
+                                    else{
+                                        // mot de passe incorrect
+                                        String incorrectPassword = "Wrong password.";
+                                        pout.println(incorrectPassword);
+                                        pout.flush();
+                                    }
+                                }
+                            }
+                        }while (pwd==false);
+                        String fileToDel = usernameToDel+"\\"+nameOfWantedDeletedFile ;
+                        deleteFile(shareDirectory, fileToDel);
                         break;
 
                     //3. add a file
                     case "3":
                         pout.println("which file do you want to download");
                         pout.flush();
-
                         String fileToSend = getInput();
-
                         pout.println("File "+ fileToSend + " was sent");
                         pout.flush();
-
                         File file = new File(fileToSend);
-
                         transferFile(file);
-
                         break;
 
                     //4. upload
                     case "4":
                         pout.println("which file do you want to upload");
                         pout.flush();
-
                         uploadFile();
-
                         break;
 
                     //5. help
@@ -238,10 +246,9 @@ public class AcceptClient implements Runnable {
                         // envoie le message de bienvenue
                         pout.println(help());
                         pout.flush();
-
                         break;
 
-                    //3. oui
+                    //6. quit
                     case "quit":
                         quitting = true;
                         break;
@@ -251,7 +258,6 @@ public class AcceptClient implements Runnable {
         {
             e.printStackTrace();
         }
-
     }
 
     public String getInput() throws IOException {
@@ -259,10 +265,8 @@ public class AcceptClient implements Runnable {
         String initiate = "input";
         pout.println(initiate);
         pout.flush();
-
         buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream())) ;
         String message_distant = buffin.readLine() ;
-
         return message_distant;
     }
 
@@ -301,7 +305,6 @@ public class AcceptClient implements Runnable {
         Pout2.println(myFileSize);
         Pout2.println(filename);
 
-
         byte[] mybytearray = new byte[(int)myFileSize];
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
         bis.read(mybytearray, 0, mybytearray.length);
@@ -327,59 +330,31 @@ public class AcceptClient implements Runnable {
         }
     }
 
-    public void listFilesForUsername(File f,int nbDir, String username){
-
+    public void listFilesForUsername(File f, String username){
+        // va lister les dossiers de tous les utilisateurs
         File[] files = f.listFiles();
 
-        // For each pathname in the pathnames array
         for (File file : files) {
-
-
-            String retourLigne = "\n";
-            pout.print(retourLigne);
-            pout.flush();
-
-
-            //tabulation
-            for (int i = 0; i < nbDir-2; i++) {
-                String fileName = "\t" ;
-                pout.print(fileName);
-                pout.flush();
-            }
-
-            //if it's a file it shows the file
-            if(file.isFile())
-            {
-                String fileName = file.getName() ;
-                pout.println(fileName);
-                pout.flush();
-            }
-            //if its directory, it shows the directory name, and then recursive with the next level
-            else if(file.isDirectory())
-            {
-
-                String dirName = "["+file.getName()+"]";
-                pout.print(dirName);
-                pout.flush();
-
-                listFiles( file ,nbDir+1);
+            if(file.getName().equals(username)){
+                File[] childs = file.listFiles();
+                for (File child : childs){
+                    String fileName = child.getName() + "\n";
+                    pout.println(fileName);
+                    pout.flush();
+                }
             }
         }
     }
 
     public void listFiles(File f, int nbDir)
     {
-
         File[] files = f.listFiles();
 
         // For each pathname in the pathnames array
         for (File file : files) {
-
-
             String retourLigne = "\n";
             pout.print(retourLigne);
             pout.flush();
-
 
             //tabulation
             for (int i = 0; i < nbDir-2; i++) {
@@ -404,11 +379,6 @@ public class AcceptClient implements Runnable {
 
                 listFiles( file ,nbDir+1);
             }
-
-            // Print the names of files and directories
-            /*String fileName = file.getName();
-            pout.println(fileName);
-            pout.flush();*/
         }
     }
 
@@ -430,23 +400,25 @@ public class AcceptClient implements Runnable {
         try {
             BufferedReader Buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream()));
 
-            //Ask the server to create a new socket
+            // Va chercher les informations sur le fichier
             String size = Buffin.readLine();
             System.out.println(size);
-
             String filePath = Buffin.readLine();
             System.out.println(filePath);
 
+            // Crée les différentes variables selon les informations du file
             File file = new File(filePath);
             int totalsize = Integer.parseInt(size);
             String filename = file.getName();
             byte[] mybytearray = new byte[totalsize];
 
+            // prépare la transaction et l'écriture des fichiers
             InputStream is = new BufferedInputStream(clientSocketOnServer.getInputStream());
-
             FileOutputStream fos = new FileOutputStream(shareDirectory+"\\"+mdp[idUsername]+"\\"+filename);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             int byteReadTot = 0;
+
+            // va read le fichier et le réécrit dans les dossiers du serveur
             while(byteReadTot<totalsize)
             {
                 int byteRead = is.read(mybytearray, 0, mybytearray.length);
@@ -455,8 +427,6 @@ public class AcceptClient implements Runnable {
                 bos.write(mybytearray, 0, byteRead);
             }
             bos.close();
-
-
         }catch (IOException e)
         {
             e.printStackTrace();

@@ -66,7 +66,7 @@ public class NewServerConnection {
 
             } catch (IOException e) {
 
-               // log.SEVERE("Exception " +e);
+                log.severe("Exception " +e);
                 e.printStackTrace();
             }
         }

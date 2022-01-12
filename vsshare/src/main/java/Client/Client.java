@@ -1,5 +1,7 @@
 package Client;
 
+import Client.View.FrameView;
+
 import javax.swing.*;
 import java.io.*;
 import java.net.InetAddress;
@@ -21,6 +23,10 @@ public class Client {
 
     public Client() {
         try {
+            // initialise la vue
+            FrameView frameView = new FrameView(null, null);
+            frameView.setVisible(true);
+
 
             System.out.println("Enter server IP please");
 
@@ -29,12 +35,9 @@ public class Client {
             serverName = messageToSend;
             serverAddress = InetAddress.getByName(serverName);
             System.out.println("Get the address of the server : " + serverAddress);
-
             mySocket = new Socket(serverAddress, 45007);
 
-            // Gui gui = new Gui();
-            //gui.setVisible(true);
-            //gui.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
 
             BufferedReader buffin = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             Pout = new PrintWriter(mySocket.getOutputStream(), true);
@@ -53,7 +56,6 @@ public class Client {
                 if (message.equals("input")) {
                     //wait for an input from the console
                     //sc = new Scanner(System.in);
-
                     messageToSend = sc.nextLine();
                     Pout.println(messageToSend);
                     Pout.flush();
@@ -78,23 +80,12 @@ public class Client {
                 //if client choses to upload file
                 if (messageToSend.equals("4"))
                 {
-                    uploadFile();
+                    System.out.println("which file do you want to upload");
+                    messageToSend = sc.nextLine();
+                    uploadFile(messageToSend);
                 }
-
             }
-
-            /*Client c = new Client(serverName, password);
-            Thread client = new Thread();*/
-
-           // System.out.println("We got the connexion to  " + serverAddress);
-
-            //wait a bit before exit
-            //Thread.sleep(30000);
-
-
-        } catch (
-                UnknownHostException e) {
-
+        } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             System.out.println(e);
@@ -148,17 +139,10 @@ public class Client {
 
     }
 
-    private void uploadFile() throws IOException {
-
-
+    private void uploadFile(String filepath) throws IOException {
         BufferedReader Buffin = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
-
         String message = Buffin.readLine();
         System.out.println(message);
-
-        sc = new Scanner(System.in);
-        String filepath = sc.nextLine();
-
 
         //Ask the server to create a new socket
         String filename = filepath;
@@ -170,14 +154,12 @@ public class Client {
         Pout2.println(myFileSize);
         Pout2.println(filename);
 
-
         byte[] mybytearray = new byte[(int)myFileSize];
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
         bis.read(mybytearray, 0, mybytearray.length);
         OutputStream os = mySocket.getOutputStream();
         os.write(mybytearray, 0, mybytearray.length);
         os.flush();
-
     }
 }
 

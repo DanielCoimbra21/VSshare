@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -17,13 +18,18 @@ public class Log {
     private int year = calendar.get(Calendar.YEAR);
     private String month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
     int day = calendar.get(Calendar.DATE);
-    private String fileName = "["+day+"_"+month+"_"+year+"]";
+    private String fileName = "["+day+""+month+""+year+"]";
     private File file = new File(fileName);
     private SimpleFormatter formatter = new SimpleFormatter();
 
     public Log()
     {
 
+    }
+
+    public Logger getMyLogger()
+    {
+        return logger;
     }
 
     // usefull commands
@@ -46,6 +52,8 @@ public class Log {
         fileHandler.setFormatter(formatter);
         logger.info(string);
         fileHandler.close();
+
+        logger.setLevel(Level.INFO);
     }
 
     //warning : network problems

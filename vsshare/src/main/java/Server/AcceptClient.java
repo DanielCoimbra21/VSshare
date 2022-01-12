@@ -105,20 +105,28 @@ public class AcceptClient implements Runnable {
                 System.out.println("Ip address found in <TheList.txt>.");
                 // On va donc envoyer un message au client
                 do {
-                    String deuxiemeContact = "Password :";
+                    // demande le username du client
+                    String deuxiemeContact = "Username :";
                     pout.println(deuxiemeContact);
                     pout.flush();
+                    // récupère le Username du client
+                    String message_distant_Username = getInput();
 
+                    // demande le password
+                    String troixiemeContact = "Password :";
+                    pout.println(troixiemeContact);
+                    pout.flush();
                     // récupère le code du client
                     String message_distant = getInput();
+
                     // va chercher le code correspondant à l'adresse ip
                     for(int i = 0 ; i < mdp.length ; i++){
-                        if(mdp[i].equals(ipAddr)){
-                            if(mdp[i+2].equals(message_distant)){
+                        if(mdp[i].equals(message_distant_Username)){
+                            if(mdp[i+1].equals(message_distant)){
                                 // mot de passe correct
-                                idIPAddr = i ;
-                                idUsername = i+1;
-                                idPassword = i+2;
+                                idIPAddr = i-1 ;
+                                idUsername = i;
+                                idPassword = i+1;
                                 codeClient = true ;
                                 break;
                             }
@@ -174,19 +182,30 @@ public class AcceptClient implements Runnable {
 
                     //2. delete file wanted
                     case "2":
-                        pout.println("which file do you want to delete");
+                        pout.println("Enter an Username :");
                         pout.flush();
+                        String usernameToDel = getInput();
 
-                        String fileToDel = getInput();
-
-                        pout.println("what is the password ?");
-                        pout.flush();
+                        // liste les files du username en question
 
 
-                        //if (test password)
-                        String passwordFile = getInput();
 
-                        deleteFile(shareDirectory, fileToDel);
+                        // test le password
+//                        boolean pwd = false ;
+//                        do {
+//                            pout.println("Password : ");
+//                            pout.flush();
+//                            String passwordFile = getInput();
+//
+//                            if(passwordFile.equals(mdp[idFilePassword])){
+//                                pwd = true ;
+//                            }
+//                            else {
+//                                pout.println("Wrong password.");
+//                                pout.flush();
+//                            }
+//                        }while(pwd = false);
+//                        deleteFile(shareDirectory, fileToDel);
                         break;
 
                     //3. add a file
@@ -211,7 +230,6 @@ public class AcceptClient implements Runnable {
                         pout.flush();
 
                         uploadFile();
-
 
                         break;
 
@@ -241,7 +259,6 @@ public class AcceptClient implements Runnable {
         String initiate = "input";
         pout.println(initiate);
         pout.flush();
-
 
         buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream())) ;
         String message_distant = buffin.readLine() ;
@@ -310,6 +327,46 @@ public class AcceptClient implements Runnable {
         }
     }
 
+    public void listFilesForUsername(File f,int nbDir, String username){
+
+        File[] files = f.listFiles();
+
+        // For each pathname in the pathnames array
+        for (File file : files) {
+
+
+            String retourLigne = "\n";
+            pout.print(retourLigne);
+            pout.flush();
+
+
+            //tabulation
+            for (int i = 0; i < nbDir-2; i++) {
+                String fileName = "\t" ;
+                pout.print(fileName);
+                pout.flush();
+            }
+
+            //if it's a file it shows the file
+            if(file.isFile())
+            {
+                String fileName = file.getName() ;
+                pout.println(fileName);
+                pout.flush();
+            }
+            //if its directory, it shows the directory name, and then recursive with the next level
+            else if(file.isDirectory())
+            {
+
+                String dirName = "["+file.getName()+"]";
+                pout.print(dirName);
+                pout.flush();
+
+                listFiles( file ,nbDir+1);
+            }
+        }
+    }
+
     public void listFiles(File f, int nbDir)
     {
 
@@ -374,26 +431,18 @@ public class AcceptClient implements Runnable {
             BufferedReader Buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream()));
 
             //Ask the server to create a new socket
-
-
-
             String size = Buffin.readLine();
             System.out.println(size);
 
             String filePath = Buffin.readLine();
             System.out.println(filePath);
-            //System.out.println(Buffin.readLine());
 
             File file = new File(filePath);
-
             int totalsize = Integer.parseInt(size);
-
             String filename = file.getName();
             byte[] mybytearray = new byte[totalsize];
 
             InputStream is = new BufferedInputStream(clientSocketOnServer.getInputStream());
-
-            System.out.println("You received a file in :");
 
             FileOutputStream fos = new FileOutputStream(shareDirectory+"\\"+mdp[idUsername]+"\\"+filename);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
@@ -404,10 +453,10 @@ public class AcceptClient implements Runnable {
                 byteReadTot += byteRead;
                 System.out.println("Byte read : " + byteReadTot);
                 bos.write(mybytearray, 0, byteRead);
-
             }
-
             bos.close();
+
+
         }catch (IOException e)
         {
             e.printStackTrace();

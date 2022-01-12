@@ -177,6 +177,7 @@ public class Client {
         OutputStream os = mySocket.getOutputStream();
         os.write(mybytearray, 0, mybytearray.length);
         os.flush();
+
     }
 }
 

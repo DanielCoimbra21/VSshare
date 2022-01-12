@@ -24,11 +24,11 @@ public class Client {
     public Client() {
         try {
             // initialise la vue
-            FrameView frameView = new FrameView(null, null);
-            frameView.setVisible(true);
+//            FrameView frameView = new FrameView(null, null);
+//            frameView.setVisible(true);
 
 
-            System.out.println("Enter server IP please");
+            System.out.println("Enter server IP :");
 
             //enter server ip addresse
             messageToSend = sc.nextLine();
@@ -134,9 +134,7 @@ public class Client {
             bos.write(mybytearray, 0, byteRead);
 
         }
-
         bos.close();
-
     }
 
     private void uploadFile(String filepath) throws IOException {

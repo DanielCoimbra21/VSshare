@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 
 public class Log {
 
@@ -20,7 +17,9 @@ public class Log {
     int day = calendar.get(Calendar.DATE);
     private String fileName = "["+day+""+month+""+year+"]";
     private File file = new File(fileName);
-    private SimpleFormatter formatter = new SimpleFormatter();
+    //private SimpleFormatter formatter = new SimpleFormatter();
+    private Formatter formatter = new LogFormatter();
+    public static final String ANSI_YELLOW = "\u001B[33m";
 
     public Log()
     {

@@ -12,3 +12,8 @@ janv. 12, 2022 3:21:34 PM Server.Log info
 INFOS: Server is online
 janv. 12, 2022 3:22:01 PM Server.Log info
 INFOS: A new Client is connected with the address : /192.168.152.1
+[12-01-2022 16:38:59] [Server.Log] [INFO] - Server is online
+[12-01-2022 17:13:27] [Server.Log] [INFO] - Server is online
+[12-01-2022 18:37:01] [Server.Log] [INFO] - Server is online
+[12-01-2022 18:37:24] [Server.Log] [INFO] - A new Client is connected with the address : /172.22.22.57 and the username : /172.22.22.57
+[12-01-2022 18:37:34] [Server.Log] [INFO] - Client has disconnected

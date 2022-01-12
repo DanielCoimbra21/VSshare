@@ -1,20 +1,17 @@
 package Client;
 
-import javax.swing.*;
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Scanner;
-
 public class NewClientConnection {
 
+    /*********************************************************************************************
+     *                     Main class du client de notre application VSShare
+     *
+     * Pour pouvoir lancer l'application, il est nécessaire de créer un variable d'environnement
+     * nommée "HOME" pointant sur le \target\classes\ du projet
+     *
+     * Lien vers le GitLab : https://gitlab.com/DanielCoimbra21/vsshare
+     * ******************************************************************************************/
 
     public static void main(String[] args) {
-
         Client client = new Client();
-
     }
 }

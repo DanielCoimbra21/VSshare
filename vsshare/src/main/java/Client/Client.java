@@ -1,6 +1,5 @@
 package Client;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -17,36 +16,31 @@ public class Client {
     Socket mySocket;
     PrintWriter Pout;
     File receiveDirectory = new File("C:\\received");
+    Scanner sc = new Scanner(System.in);
 
-    Scanner sc = new Scanner(System.in);;
+    /**
+     * Constructeur de la classe Client qui sert à gérer la communication avec le serveur
+     * Est sous écoute jusqu'à ce que l'input "quit" soit écrit par l'utilisateur
+     */
 
     public Client() {
         try {
-            // initialise la vue
-//            FrameView frameView = new FrameView(null, null);
-//            frameView.setVisible(true);
-
+            // paramétrage du serveur Client
             createReceivedDirectory(receiveDirectory);
-
             System.out.println("Enter server IP :");
-
-            //enter server ip addresse
             messageToSend = sc.nextLine();
             serverName = messageToSend;
             serverAddress = InetAddress.getByName(serverName);
             System.out.println("Get the address of the server : " + serverAddress);
             mySocket = new Socket(serverAddress, 45007);
 
-
-
             BufferedReader buffin = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             Pout = new PrintWriter(mySocket.getOutputStream(), true);
 
+            // Mise en écoute du client jusqu'à ce que le mot "quit" soit écrit
             boolean stop = false;
-
             while (!stop) {
-                //read received messgae
-
+                //read and write received messgae
                 String message = buffin.readLine();
                 if (!message.equals("input"))
                 {
@@ -55,7 +49,6 @@ public class Client {
 
                 if (message.equals("input")) {
                     //wait for an input from the console
-                    //sc = new Scanner(System.in);
                     messageToSend = sc.nextLine();
                     Pout.println(messageToSend);
                     Pout.flush();
@@ -66,7 +59,6 @@ public class Client {
                     stop = true;
                     Pout.println(messageToSend);
                     Pout.flush();
-                    //break;
                     System.out.println("\nTerminate client program...");
                     mySocket.close();
                 }
@@ -95,39 +87,32 @@ public class Client {
         }
     }
 
+    /**
+     * Méthode de la classe Client qui sert à télécharger des fichiers situés sur le serveur
+     */
+
     private void transferFile() throws IOException {
-
         BufferedReader Buffin = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
-       // Pout = new PrintWriter(mySocket.getOutputStream(), true);
-
-        //Ask the server to create a new socket
-
-
         System.out.println(Buffin.readLine());
         System.out.println(Buffin.readLine());
 
         sc = new Scanner(System.in);
-
         messageToSend = sc.nextLine();
         Pout.println(messageToSend);
         Pout.flush();
-
         System.out.println(Buffin.readLine());
 
         int totalsize = Integer.parseInt(Buffin.readLine());
-
         String filename = Buffin.readLine();
         byte[] mybytearray = new byte[totalsize];
-
         InputStream is = new BufferedInputStream(mySocket.getInputStream());
 
         System.out.println("You received a file in :");
-
         FileOutputStream fos = new FileOutputStream("c://received//"+filename);
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         int byteReadTot = 0;
-        while(byteReadTot<totalsize)
-        {
+
+        while(byteReadTot<totalsize) {
             int byteRead = is.read(mybytearray, 0, mybytearray.length);
             byteReadTot += byteRead;
             System.out.println("Byte read : " + byteReadTot);
@@ -136,6 +121,11 @@ public class Client {
         }
         bos.close();
     }
+
+    /**
+     * Méthode de la classe Client qui sert à créer un fichier permettant au Client de stocker ses fichiers.
+     * @param f liste de tous les fichiers
+     */
 
     public void createReceivedDirectory(File f)
     {
@@ -149,6 +139,11 @@ public class Client {
             System.out.println("Directory exists already");
         }
     }
+
+    /**
+     * Méthode de la classe Client qui sert à upload un fichier depuis son ordinateur sur le serveur
+     * @param filepath lien du fichier à upload sur le serveur
+     */
 
     private void uploadFile(String filepath) throws IOException {
         BufferedReader Buffin = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));

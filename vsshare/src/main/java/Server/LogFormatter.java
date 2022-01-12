@@ -6,42 +6,32 @@ import java.util.logging.LogRecord;
 
 public class LogFormatter extends Formatter
 {
-    // ANSI escape code
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
+    /**
+     * Méthode de la classe LogFormatter qui sert à modifier la sortie des log events
+     * @param LogRecord record à modifier
+     */
 
-    // Here you can configure the format of the output and
-    // its color by using the ANSI escape codes defined above.
-
-    // format is called for every console log message
     @Override
     public String format(LogRecord record)
     {
-        // This example will print date/time, class, and log level in yellow,
-        // followed by the log message and it's parameters in white .
         StringBuilder builder = new StringBuilder();
 
-
+        // Date entre crochets
         builder.append("[");
         builder.append(calcDate(record.getMillis()));
         builder.append("]");
 
+        // Source de l'information entre crochets
         builder.append(" [");
         builder.append(record.getSourceClassName());
         builder.append("]");
 
+        // Importance du log entre crochets
         builder.append(" [");
         builder.append(record.getLevel().getName());
         builder.append("]");
 
-
+        // Message du log
         builder.append(" - ");
         builder.append(record.getMessage());
 
@@ -61,6 +51,11 @@ public class LogFormatter extends Formatter
         builder.append("\n");
         return builder.toString();
     }
+
+    /**
+     * Méthode de la classe LogFormatter qui sert à modifier le format de la date
+     * @param long milisecs de la date actuelle
+     */
 
     private String calcDate(long millisecs) {
         SimpleDateFormat date_format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");

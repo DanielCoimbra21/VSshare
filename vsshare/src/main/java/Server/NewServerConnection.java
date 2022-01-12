@@ -1,42 +1,36 @@
 package Server;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.PrintWriter;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Enumeration;
-import java.util.Scanner;
 
 public class NewServerConnection {
 
-        /**
-         * @param args
-         */
+    /*********************************************************************************************
+     *                     Main class du serveur de notre application VSShare
+     *
+     * Pour pouvoir lancer l'application, il est nécessaire de créer un variable d'environnement
+     * nommée "HOME" pointant sur le \target\classes\ du projet
+     *
+     * Lien vers le GitLab : https://gitlab.com/DanielCoimbra21/vsshare
+     * ******************************************************************************************/
+
         public static void main(String[] args) {
 
-            Socket srvSocket = null ;
             InetAddress localAddress = null;
             ServerSocket mySkServer;
             Connection connection = new Connection();
-            //String interfaceName = connection.getIa();
             Log log = new Log();
-
             int ClientNo = 1;
 
             try {
-                //NetworkInterface ni = NetworkInterface.getByName(interfaceName);
                 NetworkInterface ni = NetworkInterface.getByInetAddress(connection.getIa());
                 Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
                 while(inetAddresses.hasMoreElements()) {
                     InetAddress ia = inetAddresses.nextElement();
-
                     if(!ia.isLinkLocalAddress()) {
                         if(!ia.isLoopbackAddress()) {
                             System.out.println(ni.getName() + "->IP: " + ia.getHostAddress());
@@ -53,19 +47,18 @@ public class NewServerConnection {
 
                 log.info("Server is online");
 
-                //wait for a client connection
+                //When the server receive a new connection, starts a new Thread
                 while(true)
                 {
                     Socket clientSocket = mySkServer.accept();
                     System.out.println("connection request received");
-                    Thread t = new Thread(new AcceptClient(clientSocket,ClientNo, log));
+                    Thread t = new Thread(new Server(clientSocket,ClientNo, log));
                     ClientNo++;
                     //starting the thread
                     t.start();
                 }
 
             } catch (IOException e) {
-
                 log.severe("Exception " +e);
                 e.printStackTrace();
             }

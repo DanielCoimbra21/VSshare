@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class AcceptClient implements Runnable {
+public class Server implements Runnable {
 
     private Socket clientSocketOnServer;
     private int clientNumber;
@@ -22,16 +22,24 @@ public class AcceptClient implements Runnable {
     File shareDirectory = new File("C:\\ShareFiles");
     Log log;
 
-    //Constructor
-    public AcceptClient (Socket clientSocketOnServer, int clientNo, Log log)
+    /**
+     * Constructeur de la classe Server qui sert à gérer la communication entre le client et le serveur
+     * @param clientSocketOnServer Socket disponible pour le serveur
+     * @param clientNo Numéro du client souhaitant se connecter au serveur
+     * @param log logbook créé dans l'initialisation
+     */
+
+    public Server(Socket clientSocketOnServer, int clientNo, Log log)
     {
         this.clientSocketOnServer = clientSocketOnServer;
         this.clientNumber = clientNo;
         this.log=log;
     }
 
+    /**
+     * Thread de la classe Server qui sert à gérer la communication entre le serveur et plusieurs clients en même temps
+     */
 
-    //overwrite the thread run()
     public void run() {
         try {
             // parameter part
@@ -40,13 +48,11 @@ public class AcceptClient implements Runnable {
             System.out.println("Socket is available for connection"+ clientSocketOnServer);
             pout = new PrintWriter(clientSocketOnServer.getOutputStream(), true);
 
-
-            // va lire le fichier
+            // read the file
             Scanner s = new Scanner(new File("vsshare/src/main/java/RegisteredClients/TheList.txt"));
             ArrayList<String> list = new ArrayList<String>();
             while (s.hasNext()){
                 list.add(s.next());
-
             }
             s.close();
 
@@ -101,23 +107,22 @@ public class AcceptClient implements Runnable {
                 System.out.println("Ip address found in <TheList.txt>.");
                 // On va donc envoyer un message au client
                 do {
-                    // demande le username du client
+                    // demande et récupère le username du client
                     String deuxiemeContact = "Username :";
                     pout.println(deuxiemeContact);
                     pout.flush();
-                    // récupère le Username du client
                     String message_distant_Username = getInput();
 
-                    // demande le password
+                    // demande et récupère le password
                     String troixiemeContact = "Password :";
                     pout.println(troixiemeContact);
                     pout.flush();
-                    // récupère le code du client
                     String message_distant = getInput();
 
                     // va chercher le code correspondant à l'adresse ip
                     for(int i = 0 ; i < mdp.length ; i++){
                         if(mdp[i].equals(message_distant_Username)){
+                            // username correct
                             if(mdp[i+1].equals(message_distant)){
                                 // mot de passe correct
                                 idIPAddr = i-1 ;
@@ -131,8 +136,6 @@ public class AcceptClient implements Runnable {
                                 String incorrectPassword = "Wrong username or password.";
                                 pout.println(incorrectPassword);
                                 pout.flush();
-
-                                log.warning("password enter is wrong");
                             }
                         }
                     }
@@ -142,13 +145,15 @@ public class AcceptClient implements Runnable {
                     pout.flush();
                 }while (codeClient==false);
             }
-            String firstLogInfoMessageConnection = "A new Client is connected with the address : " + mdp[idIPAddr] ;
+            // connection réussie, écrit un log dans le serveur.
+            String firstLogInfoMessageConnection = "A new Client is connected with the address : " + mdp[idIPAddr] + " and the username : " + mdp[idUsername];
             log.info(firstLogInfoMessageConnection);
+
             // envoie le message de bienvenue
             pout.println(help());
             pout.flush();
 
-            //call switch with the choices
+            //call switch with the client choices
             switchMethod();
 
             // ferme le serveur
@@ -164,23 +169,22 @@ public class AcceptClient implements Runnable {
         }
     }
 
+    /**
+     * Méthode de la classe Server qui sert à gérer les demandes du client
+     */
+
     private void switchMethod() {
-        try
-        {
-            // écoute le client afin de savoir l'action à faire
+        try {
             do {
                 pout.println("\nContinue choices : ");
                 pout.flush();
-
                 String choice = getInput();
 
-                switch (choice)
-                {
+                switch (choice) {
                     // 1. Send a list of all the files
                     case "1":
                         pout.println("The files available on the server are : ");
                         pout.flush();
-
                         listFiles(shareDirectory, 2);
                         break;
 
@@ -217,7 +221,7 @@ public class AcceptClient implements Runnable {
                                         pwd = true ;
                                         break;
                                     }
-                                    else{
+                                    else {
                                         // mot de passe incorrect
                                         String incorrectPassword = "Wrong password.";
                                         pout.println(incorrectPassword);
@@ -268,12 +272,15 @@ public class AcceptClient implements Runnable {
                         break;
                 }
             }while (quitting == false);
-        }catch (IOException e)
-        {
+        }catch (IOException e) {
             log.severe("Exception thrown "+e);
             e.printStackTrace();
         }
     }
+
+    /**
+     * Méthode de la classe Server qui sert à récupérer l'input du client
+     */
 
     public String getInput() throws IOException {
         pout = new PrintWriter(clientSocketOnServer.getOutputStream());
@@ -285,8 +292,13 @@ public class AcceptClient implements Runnable {
         return message_distant;
     }
 
+    /**
+     * Méthode de la classe Server qui sert à afficher le message d'aide
+     * Déclencheur : input "5"
+     */
+
     public String help() throws IOException {
-        // va lire le fichier
+        // va lire le fichier d'aide stocké dans le fichier Help.txt
         Scanner s = new Scanner(new File("vsshare/src/main/java/Server/Help.txt"));
         ArrayList<String> list = new ArrayList<String>();
         while (s.hasNext()){
@@ -294,7 +306,7 @@ public class AcceptClient implements Runnable {
         }
         s.close();
 
-        // va envoyer le message de bienvenue au client
+        // mise en forme du fichier
         String affiche="";
         for(String str : list){
             if(str.equals("uwu")){
@@ -304,9 +316,14 @@ public class AcceptClient implements Runnable {
                 affiche += str + " " ;
             }
         }
-
         return affiche;
     }
+
+    /**
+     * Méthode de la classe Server qui sert à gérer le download d'un fichier du serveur au client
+     * @param dest destination du fichier stocké sur le serveur
+     * Déclencheur : input "3"
+     */
 
     public void transferFile(File dest) throws IOException
     {
@@ -326,28 +343,36 @@ public class AcceptClient implements Runnable {
         OutputStream os = clientSocketOnServer.getOutputStream();
         os.write(mybytearray, 0, mybytearray.length);
         os.flush();
-        /*clientSocketOnServer.close();
-        System.out.println("end of connection to the client " + clientNumber);*/
     }
 
-    public void deleteFile(File file, String fileToDel)
-    {
+    /**
+     * Méthode de la classe Server qui sert à supprimer un fichier stocké sur le serveur
+     * @param file chemin du fichier à supprimer
+     * @param fileToDel nom du fichier à supprimer
+     * Déclencheur : input "2"
+     */
+
+    public void deleteFile(File file, String fileToDel) {
         File fileDel = new File(file.getAbsolutePath()+'\\'+fileToDel);
         try {
-            if (fileDel.delete())
-            {
+            if (fileDel.delete()) {
                 System.out.println("This file was deleted");
             }
-        }catch(Exception e)
-        {
+        }catch(Exception e) {
             System.out.println("Failed to delete the file");
             log.warning("failed to delete a file");
             e.printStackTrace();
         }
     }
 
+    /**
+     * Méthode de la classe Server qui sert à lister tous les fichiers liés à un username
+     * @param f liste des fichiers
+     * @param username username concerné
+     * Déclencheur : Le switch du mode "Delete"
+     */
+
     public void listFilesForUsername(File f, String username){
-        // va lister les dossiers de tous les utilisateurs
         File[] files = f.listFiles();
 
         for (File file : files) {
@@ -362,8 +387,14 @@ public class AcceptClient implements Runnable {
         }
     }
 
-    public void listFiles(File f, int nbDir)
-    {
+    /**
+     * Méthode de la classe Server qui sert à afficher tous les fichiers du dossier sharefiles ainsi que sa structure
+     * @param nbDir définit la profindeur de la recherche, récursive afin d'aller lister les fichiers des sous dossiers.
+     * @param f liste des fichiers du dossier ShareFiles
+     * Déclencheur : input "1"
+     */
+
+    public void listFiles(File f, int nbDir) {
         File[] files = f.listFiles();
 
         // For each pathname in the pathnames array
@@ -380,15 +411,13 @@ public class AcceptClient implements Runnable {
             }
 
             //if it's a file it shows the file
-            if(file.isFile())
-            {
+            if(file.isFile()) {
                 String fileName = file.getName() ;
                 pout.println(fileName);
                 pout.flush();
             }
             //if its directory, it shows the directory name, and then recursive with the next level
-            else if(file.isDirectory())
-            {
+            else if(file.isDirectory()) {
                 String dirName = "["+file.getName()+"]";
                 pout.print(dirName);
                 pout.flush();
@@ -398,22 +427,30 @@ public class AcceptClient implements Runnable {
         }
     }
 
+    /**
+     * Méthode de la classe Server permettant de créer un fichier "shareFiles" lors de la première connection du client
+     * @param f liste des fichiers du dossier ShareFiles
+     * Déclencheur : login
+     */
+
     public void createShareDirectory(File f)
     {
-        if(!f.exists())
-        {
+        if(!f.exists()) {
             f.mkdirs();
             System.out.println("Directory Created");
             log.info("Directory was created");
         }
-        else
-        {
+        else {
             System.out.println("Directory exists already");
         }
     }
 
-    public void uploadFile()
-    {
+    /**
+     * Méthode de la classe Server permettant à l'utilisateur de stocker des fichiers depuis son pc jusqu'au serveur
+     * Déclencheur : input "5"
+     */
+
+    public void uploadFile() {
         try {
             BufferedReader Buffin = new BufferedReader(new InputStreamReader(clientSocketOnServer.getInputStream()));
 
@@ -436,23 +473,16 @@ public class AcceptClient implements Runnable {
             int byteReadTot = 0;
 
             // va read le fichier et le réécrit dans les dossiers du serveur
-            while(byteReadTot<totalsize)
-            {
+            while(byteReadTot<totalsize) {
                 int byteRead = is.read(mybytearray, 0, mybytearray.length);
                 byteReadTot += byteRead;
                 System.out.println("Byte read : " + byteReadTot);
                 bos.write(mybytearray, 0, byteRead);
             }
             bos.close();
-        }catch (IOException e)
-        {
+        }catch (IOException e) {
             log.severe("error while uploading file "+e);
             e.printStackTrace();
         }
-
     }
-
-
-
-
 }

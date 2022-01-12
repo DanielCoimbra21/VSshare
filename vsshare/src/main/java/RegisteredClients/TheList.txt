@@ -1,3 +1,4 @@
 /172.22.22.57:Daniel:password
 /10.28.3.98:Theo:1234
 /192.168.152.1:Bob:1234
+/10.93.4.199:coimbra:password

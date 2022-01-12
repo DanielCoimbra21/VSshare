@@ -40,6 +40,7 @@ public class AcceptClient implements Runnable {
             System.out.println("Socket is available for connection"+ clientSocketOnServer);
             pout = new PrintWriter(clientSocketOnServer.getOutputStream(), true);
 
+
             // va lire le fichier
             Scanner s = new Scanner(new File("vsshare/src/main/java/RegisteredClients/TheList.txt"));
             ArrayList<String> list = new ArrayList<String>();
@@ -130,6 +131,8 @@ public class AcceptClient implements Runnable {
                                 String incorrectPassword = "Wrong username or password.";
                                 pout.println(incorrectPassword);
                                 pout.flush();
+
+                                log.warning("password enter is wrong");
                             }
                         }
                     }
@@ -153,8 +156,10 @@ public class AcceptClient implements Runnable {
             Thread.sleep(3000);
             System.out.println("end of connection to the client " + clientNumber);
         } catch (IOException e) {
+            log.severe("Exception thrown "+e);
             e.printStackTrace();
         } catch (InterruptedException e) {
+            log.severe("Connection interrupted "+e);
             e.printStackTrace();
         }
     }
@@ -225,13 +230,16 @@ public class AcceptClient implements Runnable {
                         deleteFile(shareDirectory, fileToDel);
                         break;
 
-                    //3. add a file
+                    //3. download a file
                     case "3":
                         pout.println("which file do you want to download");
                         pout.flush();
                         String fileToSend = getInput();
                         pout.println("File "+ fileToSend + " was sent");
                         pout.flush();
+
+                        log.info("Client has asked to download a file");
+
                         File file = new File(fileToSend);
                         transferFile(file);
                         break;
@@ -240,6 +248,9 @@ public class AcceptClient implements Runnable {
                     case "4":
                         pout.println("which file do you want to upload");
                         pout.flush();
+
+                        log.info("Client has asked to upload");
+
                         uploadFile();
                         break;
 
@@ -253,11 +264,13 @@ public class AcceptClient implements Runnable {
                     //6. quit
                     case "quit":
                         quitting = true;
+                        log.info("Client has disconnected");
                         break;
                 }
             }while (quitting == false);
         }catch (IOException e)
         {
+            log.severe("Exception thrown "+e);
             e.printStackTrace();
         }
     }
@@ -328,6 +341,7 @@ public class AcceptClient implements Runnable {
         }catch(Exception e)
         {
             System.out.println("Failed to delete the file");
+            log.warning("failed to delete a file");
             e.printStackTrace();
         }
     }
@@ -390,6 +404,7 @@ public class AcceptClient implements Runnable {
         {
             f.mkdirs();
             System.out.println("Directory Created");
+            log.info("Directory was created");
         }
         else
         {
@@ -431,6 +446,7 @@ public class AcceptClient implements Runnable {
             bos.close();
         }catch (IOException e)
         {
+            log.severe("error while uploading file "+e);
             e.printStackTrace();
         }
 

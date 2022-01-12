@@ -312,7 +312,7 @@ public class AcceptClient implements Runnable {
     {
         //Ask the server to create a new socket
         String filename = dest.getName();
-        String pathname = shareDirectory+"\\"+dest.getName();
+        String pathname = shareDirectory+"\\"+dest.getPath();
         File myFile = new File(pathname);
         long myFileSize = Files.size(Paths.get(pathname));
 

@@ -58,7 +58,7 @@ public class NewServerConnection {
                 {
                     Socket clientSocket = mySkServer.accept();
                     System.out.println("connection request received");
-                    Thread t = new Thread(new AcceptClient(clientSocket,ClientNo));
+                    Thread t = new Thread(new AcceptClient(clientSocket,ClientNo, log));
                     ClientNo++;
                     //starting the thread
                     t.start();

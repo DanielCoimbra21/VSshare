@@ -20,13 +20,14 @@ public class AcceptClient implements Runnable {
     private int idUsername;
     private boolean quitting = false;
     File shareDirectory = new File("C:\\ShareFiles");
-
+    Log log;
 
     //Constructor
-    public AcceptClient (Socket clientSocketOnServer, int clientNo)
+    public AcceptClient (Socket clientSocketOnServer, int clientNo, Log log)
     {
         this.clientSocketOnServer = clientSocketOnServer;
         this.clientNumber = clientNo;
+        this.log=log;
     }
 
 
@@ -138,7 +139,8 @@ public class AcceptClient implements Runnable {
                     pout.flush();
                 }while (codeClient==false);
             }
-
+            String firstLogInfoMessageConnection = "A new Client is connected with the address : " + mdp[idIPAddr] ;
+            log.info(firstLogInfoMessageConnection);
             // envoie le message de bienvenue
             pout.println(help());
             pout.flush();

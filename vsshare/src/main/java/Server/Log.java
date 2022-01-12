@@ -57,9 +57,53 @@ public class Log {
     }
 
     //warning : network problems
+    public void warning(String message){
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        FileHandler fileHandler = null;
+        try {
+            fileHandler = new FileHandler(fileName, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.addHandler(fileHandler);
+
+        fileHandler.setFormatter(formatter);
+        logger.warning(message);
+        fileHandler.close();
+
+        logger.setLevel(Level.WARNING);
+    }
+
 
     //servere: exceptions
+    public void severe(String message){
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        FileHandler fileHandler = null;
+        try {
+            fileHandler = new FileHandler(fileName, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.addHandler(fileHandler);
 
+        fileHandler.setFormatter(formatter);
+        logger.severe(message);
+        fileHandler.close();
+
+        logger.setLevel(Level.SEVERE);
+    }
 
 
 }

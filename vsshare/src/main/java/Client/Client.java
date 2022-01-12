@@ -1,7 +1,5 @@
 package Client;
 
-import Client.View.FrameView;
-
 import javax.swing.*;
 import java.io.*;
 import java.net.InetAddress;
@@ -18,6 +16,7 @@ public class Client {
     String messageToSend = "";
     Socket mySocket;
     PrintWriter Pout;
+    File receiveDirectory = new File("C:\\received");
 
     Scanner sc = new Scanner(System.in);;
 
@@ -27,6 +26,7 @@ public class Client {
 //            FrameView frameView = new FrameView(null, null);
 //            frameView.setVisible(true);
 
+            createReceivedDirectory(receiveDirectory);
 
             System.out.println("Enter server IP :");
 
@@ -135,6 +135,19 @@ public class Client {
 
         }
         bos.close();
+    }
+
+    public void createReceivedDirectory(File f)
+    {
+        if(!f.exists())
+        {
+            f.mkdirs();
+            System.out.println("Directory Created");
+        }
+        else
+        {
+            System.out.println("Directory exists already");
+        }
     }
 
     private void uploadFile(String filepath) throws IOException {
